@@ -99,7 +99,7 @@ for k=1:4
 end
 end
 
-figure("Name",nm(kk),"Position",[2000 1 1000 500])
+figure("Name",nm(kk),"Position",[10 10 1000 500])
 
 for k=1:5
     subplot(2,3,k)
@@ -114,7 +114,7 @@ end
 drawnow
 % print(gcf, '-dsvg', [nm(kk)+'A.svg']);
 
-figure("Name",nm(kk),"Position",[10 1 1000 500])
+figure("Name",nm(kk),"Position",[10 10 1000 500])
 for k=1:5
     subplot(2,3,k)
 violin([tab2vio(:,1,k,2) tab2vio(:,2,k,2) tab2vio(:,3,k,2) tab2vio(:,4,k,2)],'mc',[],'medc','black',...
