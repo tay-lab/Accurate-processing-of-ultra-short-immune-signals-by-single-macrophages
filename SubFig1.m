@@ -2,54 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% SubFigure 1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 addpath functions\
-addpath ChipAnalysis\
 %% Figure A
-load 1secPulse.mat
-
-load pixelID1.mat
-imAp=bwperim(imA);
-imAp=bwmorph(imAp,"dilate",2);
-cc=bwconncomp(imAp);
-imL=labelmatrix(cc);
-
-figure
-subplot(1,3,1)
-imshow(labeloverlay(cy5Img(:,:,2),imL))
-text(100,100,[num2str(tt(2),'%0.1f')+"s"],"color","r","FontSize",18)
-
-subplot(1,3,2)
-imshow(labeloverlay(cy5Img(:,:,21),imL))
-text(100,100,[num2str(tt(21),'%0.1f')+"s"],"color","r","FontSize",18)
-
-subplot(1,3,3)
-imshow(labeloverlay(cy5Img(:,:,41),imL))
-text(100,100,[num2str(tt(41),'%0.1f')+"s"],"color","r","FontSize",18)
-
-[nx,ny]=size(cy5Img(:,:,1));
-cc=bwconncomp(imA);
-s=regionprops(cc,"PixelIdxList");
-
-mcy0=[];
-amcy0=[];
-count=0;
-
-for i=1:length(tt)
-    count=count+1;
-    imB=cy5Img(:,:,i);
-    imC=zeros(nx,ny);
-    for j=1:length(s)
-        px=s(j).PixelIdxList;
-        mcy0(count,j)=mean(imB(px));
-            imC(px)=imB(px);
-    end    
-    % imshow(imC)
-    % drawnow
-    % pause(.2)
-end
-    amcy0=cumtrapz(tt,mcy0);
-
-col=sky(120);
-
 load dataCy5.mat
 
 for nn=1:2
