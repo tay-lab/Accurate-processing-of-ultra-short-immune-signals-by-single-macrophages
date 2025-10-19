@@ -155,4 +155,4 @@ set(gca,'FontSize',18)
 title("Ligand specificity")
 colormap sky
 %%
-save functions/AnalysisTotal data0 data groups gname cc tspan sm ActiveTresh cnt MIm TTm tt
+% save functions/AnalysisTotal data0 data groups gname cc tspan sm ActiveTresh cnt MIm TTm tt

@@ -2,114 +2,167 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% Figure 6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 addpath functions\
-load FitParams.mat
-%% Figure B
-load Phasekb_n1.mat
-col=sky(3);
-figure
-nn1=1.5;
-kb1=[.00005,.0005,.005];
-for i=3:-1:1
-[my,~,brst]=getScore2(kb1(i),kd,nn1,kl,ka,0,1);
+%%
+load ParamsModel.mat
 
-plot(brst,my,"LineWidth",3,"Color",col(i,:))
+Ms1=gamrnd(4.32,1035,[1 10000]);
+Ms2=gamrnd(2.23,4914,[1 10000]);
+Ms3=gamrnd(4.80,4404,[1 10000]);
+
+% figure
+subplot(2,3,1)
+hold off
+histogram(Ms1,70,"Normalization","pdf")
 hold on
-end
-ylabel("Max Amplitude")
-xlabel("Pulse Duration")
-xticks(10.^[0:3])
-xscale("log")
-pbaspect([1 1 1])
-set(gca,"FontSize",14)
-legend(["m_1","m_2","m_3"])
+plot([1:20000],gampdf([1:20000],4.32,1035),"LineWidth",3)
+xlim([0 15000])
+xlabel("Receptor Level")
+ylabel("Probability Density")
+legend(["","\Gamma(R)"])
+title("Receptor Levels")
 
-%% Figure C
-figure
-load Phasekb_kd.mat
-col=sky(3);
-imagesc(kb,kd,b(:,:,1)',[-1 1])
-colormap(col)
-colorbar('YTick',linspace(-1,1,3))
-ylim([.05 2])
-yticks([0:.5:2])
-xticks([0:.001:.005])
-ylabel("k_d")
-xlabel("k_b")
-set(gca, 'YDir', 'normal',"FontSize",15);
-text(.0001,1.8,"m_3","FontSize",15)
-text(2e-3,1,"m_2","FontSize",15)
-text(4e-3,.15,"m_1","FontSize",15)
-pbaspect([1 1 1])
-%% Figure D
-figure
-load Phasekb_n1.mat
-imagesc(kb,n1,b(:,:,1)',[-1 1])
-colormap(col)
-colorbar('YTick',linspace(-1,1,3))
-yticks([1:1:5])
-xticks([0:.001:.005])
-ylabel("n")
-xlabel("k_b")
-set(gca, 'YDir', 'normal',"FontSize",15);
-text(1e-4,4,"m_3","FontSize",15)
-text(2e-3,3,"m_2","FontSize",15)
-text(4e-3,1,"m_1","FontSize",15)
-pbaspect([1 1 1])
-%% Figure E
-figure
-load Phasekb_K.mat
-col=sky(3);
-imagesc(kb,kl,b(:,:,1)',[-1 1])
-colormap(col)
-colorbar('YTick',linspace(-1,1,3))
-yticks([0.00001:.00003:.0001])
-xticks([0:.001:.005])
-ylabel("K")
-xlabel("k_b")
-set(gca, 'YDir', 'normal',"FontSize",15);
-text(1e-4,8e-5,"m_3","FontSize",15)
-text(2e-3,5e-5,"m_2","FontSize",15)
-text(4e-3,1e-5,"m_1","FontSize",15)
-pbaspect([1 1 1])
+subplot(2,3,2)
+xx=[1:200];
+plot(xx,gampdf(xx,4,Par(1,1)/4),"g","LineWidth",3)
+xlim([0 max(xx)])
+xlabel("k_b (uM*s)^{-1}")
+title("Receptor Activation Rate")
 
-%% Figure F
-figure
-load Phasekb_ka.mat
-col=sky(3);
-imagesc(kb,ka,b(:,:,1)',[-1 1])
-colormap(col)
-colorbar('YTick',linspace(-1,1,3))
-yticks([0:.1:.5])
-xticks([0:.001:.005])
-ylabel("k_a")
-xlabel("k_b")
-set(gca, 'YDir', 'normal',"FontSize",15);
-text(1e-4,1e-1,"m_3","FontSize",15)
-text(2e-3,2e-1,"m_2","FontSize",15)
-text(4e-3,4e-1,"m_1","FontSize",15)
-pbaspect([1 1 1])
-%% Figure G
-load Phasekb_n1.mat
-col=sky(3);
-nn1=1.5;
-kb1=[.00005,.0005,.005];
-figure
-for i=3:-1:1
-    subplot(1,3,i)
-[my,Mod,brst]=getScore2(kb1(i),kd,nn1,kl,ka,0,0);
-for j=1:4
-T=timetable(minutes(Mod{j}.Time),Mod{j}.YY(:,4));
-T=synchronize(T,minutes([-10:200]),"linear");
+subplot(2,3,3)
+xx=[.001:.001:.5];
+plot(xx,gampdf(xx,4,Par(1,2)/4),"r","LineWidth",3)
+xlim([0 max(xx)])
+xlabel("k_c (s^{-1})")
+title("Receptor Deactivation Rate")
 
-plot(minutes(T.Time),T.Var1,"LineWidth",3)
-hold on
+subplot(2,3,4)
+xx=[.5:.1:5];
+plot(xx,gampdf(xx,4,Par(1,3)/4),"c","LineWidth",3)
+xlim([.5 max(xx)])
+xlabel("n")
+title("Hill coefficient")
+
+subplot(2,3,5)
+xx=[1:1:50];
+plot(xx,gampdf(xx,4,Par(1,4)/4),"blue","LineWidth",3)
+xlim([0 max(xx)])
+xlabel("K")
+title("Half-maximal activation")
+%%
+col=hsv(6);
+tit2=["Receptor Level","Receptor Activation k_b","Receptor Deactivation k_c",...
+    "Hill coefficient n","Half activation K"];
+
+nm=["TNF","Pam","R848"];
+
+colC=[];
+Mod={};
+for kk=1:3 %%kk=1 TNF, kk=2 Pam, kk=3 R848
+for i=1:5
+    Mod{i,kk}=scHeatM(kk,i);
 end
-ylabel("Nuclear NFkB")
-xlabel("Pulse Duration")
-set(gca,"FontSize",8)
-ylim([0 1])
-xlim([-10 180])
-xticks([0:60:180])
-pbaspect([1 1 1])
 end
-legend(["1","10","100","1000"])
+
+%%
+colC(:,:,1)=[[12 115 168]; [16 153 223]; [83 189 243]; [176 225 249]]/255;
+colC(:,:,2)=[[190 190 13]; [231 231 16]; [242 242 72]; [246 246 132]]/255;
+colC(:,:,3)=[[196 45 12]; [242 74 37]; [246 124 97]; [249 171 154]]/255;
+
+limT=[[15 40];
+    [10 40];
+    [5 90];];
+
+limA=[[0 .7];
+    [0 1];
+    [0 .8];];
+
+for kk=1:3 %%kk=1 TNF, kk=2 Pam, kk=3 R848
+tab2vio=[];
+
+for i=1:5
+    Model=Mod{i,kk};
+for k=1:4
+    nc=numel(Model{k}.Time);
+    tt=Model{k}.Time{1};
+    nfkb=zeros(nc,numel(tt));
+    for j=1:nc
+    nfkb(j,:)=Model{k}.YY{j}(:,4);
+    end
+
+    auc=trapz(nfkb,2);
+    [auc,idx]=sort(auc,"descend");
+    for ll=1:size(nfkb,1)
+        [mmx(ll),t2max(ll)]=findpeaks(nfkb(ll,:),"NPeaks",1,"SortStr","descend");
+    end
+    tab2vio(:,k,i,1)=mmx;
+    tab2vio(:,k,i,2)=tt(t2max);
+end
+end
+
+figure("Name",nm(kk),"Position",[2000 1 1000 500])
+
+for k=1:5
+    subplot(2,3,k)
+violin([tab2vio(:,1,k,1) tab2vio(:,2,k,1) tab2vio(:,3,k,1) tab2vio(:,4,k,1)],'mc',[],'medc','black',...
+    'facecolor',colC(:,:,kk))
+ylabel("Amplitude")
+xticks(1:4)
+xticklabels(["1","10","100","1000"])
+ylim(limA(kk,:))
+title(tit2(k))
+end
+drawnow
+% print(gcf, '-dsvg', [nm(kk)+'A.svg']);
+
+figure("Name",nm(kk),"Position",[10 1 1000 500])
+for k=1:5
+    subplot(2,3,k)
+violin([tab2vio(:,1,k,2) tab2vio(:,2,k,2) tab2vio(:,3,k,2) tab2vio(:,4,k,2)],'mc',[],'medc','black',...
+    'facecolor',colC(:,:,kk))
+ylabel("Time to Peak (min)")
+xticks(1:4)
+xticklabels(["1","10","100","1000"])
+ylim(limT(kk,:))
+title(tit2(k))
+end
+drawnow
+% print(gcf, '-dsvg', [nm(kk)+'T.svg']);
+
+end
+
+%%
+Mod2={};
+for i=6:8
+    Mod2{i}=scHeatM(i-5,i);
+end
+%%
+figure
+for i=6:8
+    Model=Mod2{i};
+for k=1:4
+    nc=numel(Model{k}.Time);
+    tt=Model{k}.Time{1};
+    nfkb=zeros(nc,numel(tt));
+    for j=1:nc
+    nfkb(j,:)=Model{k}.YY{j}(:,4);
+    end
+
+    auc=trapz(nfkb(:,find(tt>0,1):find(tt>60,1)),2);
+    [auc,idx]=sort(auc,"descend");
+
+    T=timetable(minutes(tt),nfkb');
+    T=synchronize(T,minutes([-10:240]),"spline");
+    subplot(3,4,k+4*(i-6))
+
+    imagesc(minutes(T.Time),1:nc,T.Var1(:,idx)',[0 .7])
+    xlabel("Time (min)")
+    xlim([-10 120])
+    xticks([0:60:120])
+    yticks([])
+    yticklabels([])
+    colormap parula
+end
+end
+
+%%
+colorbar

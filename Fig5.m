@@ -2,205 +2,196 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% Figure 5 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 addpath functions\
-%% Figure 5
-load FitParams.mat
-[ss(1),~,ModelTNF]=getScore(Par(1,1),Par(1,2),Par(1,3),Par(1,4),Par(1,5),1,myExp(1,:),0);
-[ss(2),~,ModelPam]=getScore(Par(2,1),Par(2,2),Par(2,3),Par(2,4),Par(2,5),2,myExp(2,:),0);
-[ss(3),~,ModelR848]=getScore(Par(3,1),Par(3,2),Par(3,3),Par(3,4),Par(3,5),3,myExp(3,:),0);
+%% Figure 5B
+load ParamsModel.mat
 
-%%
-figure
-tp=["1 s (1x)","10 s (.1x)","100 s (.01x)","1000 s (.001x)"];
-for i=1:4
-subplot(1,4,i)
-nn=4;
-hold on
-    plot(ModelTNF{i}.Time,ModelTNF{i}.YY(:,nn),"LineWidth",2)
-    plot(ModelPam{i}.Time,ModelPam{i}.YY(:,nn),"LineWidth",2)
-    plot(ModelR848{i}.Time,ModelR848{i}.YY(:,nn),"LineWidth",2)
-    ylim([0 .6])
-    xlim([-10 240])
-    xticks([0:120:240])
-    ylabel("NFkB dynamics")
-    xlabel("Time (min)")
-    title(tp(i))
-end
-legend(["TNF","Pam","R848"])
-
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-sensScore=zeros(5,4,3);
-rangScore=-1:.01:1;
-totParam=5;
-for k=1:3
-x=Par(k,:);
-sk=ss(k);
-myE=myExp(k,:);
-for i=1:totParam
-    parfor j=1:numel(rangScore)
-        ParX=x;
-        ParX(i)=x(i)*10^rangScore(j);
-        [s,~,~]=getScore(ParX(1),ParX(2),ParX(3),ParX(4),ParX(5),k,myE,0);
-        sensScore(i,j,k)=s;
+kb=Par(:,1);
+kc=Par(:,2);
+n1 = Par(:,3);
+Ki = Par(:,4);
+tit=[["1x"+newline+ "1 second"];
+    [".1x"+newline+ "10 seconds"];
+    [".01x"+newline+ "100 seconds"];
+    [".001x"+newline+ "1000 seconds"]];
+for i=1:3
+    [s,my,Model]=getScore(kb(i),kc(i),n1(i),Ki(i),i,myExp(i,:),0); 
+    for j=1:4
+        subplot(1,4,j)
+        hold on
+        T=Model{j}.Time;
+        YY=Model{j}.YY;
+        plot(T,YY(:,4),'LineWidth',3)
+        ylabel("NFkB dynamics")
+        xlabel("Time (min)")
+        ylim([0 .6])
+        xlim([0 100])
+        title(tit(j))
+        set(gca,"FontSize",12)
+    hold off
+        % drawnow
     end
 end
-end
+legend({'TNF','Pam','R848'})
 
-%%
+%% Figure 5C
 figure
-tit=["TNF", "Pam", "R848"];
-ParName=["k_b","k_d","n","K","k_a"];
-colormap sky
-for k=1:3
-subplot(1,3,k)
-imagesc(rangScore,1:totParam,sensScore(:,:,k),[0 1])
-yticks(1:totParam)
-yticklabels(ParName)
-xticks([-1,0,1])
-xticklabels(["10^{-1}","10^{0}","10^{1}"])
-xlim([-1 1])
+col=sky(3);
+nn1=2;
+kb1=[.01 .05 .5 ];
+kc=.03;
+kl=.01;
+hold off
+for i=3:-1:1
+[my,~,brst]=getScore2(kb1(i),kc,nn1,kl,0,1);
+
+plot(brst,my,"LineWidth",3,"Color",col(i,:))
+hold on
+end
+ylabel("Max Amplitude")
+xlabel("Pulse Duration")
+xticks(10.^[0:3])
+xscale("log")
+ylim([0 1])
+xlim([0 10^3])
 pbaspect([1 1 1])
-set(gca,'FontSize',14)
-title(tit(k))
-end
-% %%
-% colormap sky
-% colorbar
-%%
-Ms1=gamrnd(4.32,1035,[1 10000]);
-Ms2=gamrnd(2.23,4914,[1 10000]);
-Ms3=gamrnd(4.80,4404,[1 10000]);
+set(gca,"FontSize",14)
+legend(["m_1","m_2","m_3"])
+
+%% Figure 5E
+load allCV.mat
+
+varName=["k_b","k_c","n","K"];
+featName=["EAUC","Speed","Duration","Time to Peak","Peak"];
+
+[idx,scores] =fscmrmr(allCV(:,["kb","kc","ni","Ki"]),allCV.s);
 
 figure
-subplot(3,3,[1,8])
-histogram(Ms1,70,"Normalization","pdf")
-hold on
-plot([1:20000],gampdf([1:20000],4.32,1035),"LineWidth",3)
-xlim([0 15000])
-xlabel("Receptor Level")
-ylabel("Probability Density")
-legend(["","\Gamma(R)"])
-title("Receptor Levels")
+barh(scores(idx),"r")
+title("MRMR Test")
+ylabel('Predictor')
+xlabel('Predictor importance score')
+set(gca,'ydir','reverse','FontSize',14)
+xlim([0 .25])
+yticklabels(varName(idx))
 
-subplot(3,3,3)
-xx=[.1:.1:50];
-plot(xx,gampdf(xx,4,Par(1,1)/4),"g","LineWidth",3)
-xlim([0 max(xx)])
-xlabel("k_b (uM*s)^{-1}")
-title("Receptor Activation Rate")
+%% Figure 5F
+load TabSpace2.mat
+% kb=.1;
+% kc=0.03;
+% Ki = .01;
+% ni=2;
 
-subplot(3,3,6)
-xx=[.001:.001:.4];
-plot(xx,gampdf(xx,4,Par(1,2)/4),"r","LineWidth",3)
-xlim([0 max(xx)])
-xlabel("k_d (s^{-1})")
-title("Receptor Deactivation Rate")
-
-subplot(3,3,9)
-xx=[.00001:.00001:.002];
-plot(xx,gampdf(xx,4,Par(1,5)/4),"c","LineWidth",3)
-xlim([0 max(xx)])
-xlabel("k_a (s^{-1})")
-title("IKK activation Rate")
-
-%%
-col=hsv(6);
-tit2=["Receptor Level","Receptor Activation k_b","Receptor Deactivation k_d",...
-    "Hill coefficient n","Half activation K","IKK activation k_a"];
-
-nm=["TNF","Pam","R848"];
-
-colC=[];
-for kk=1:3 %%kk=1 TNF, kk=2 Pam, kk=3 R848
-Model={};
-for i=1:6
-    Mod{i,kk}=scHeatM(kk,i);
-end
-end
-%%
-colC(:,:,1)=[[12 115 168]; [16 153 223]; [83 189 243]; [176 225 249]]/255;
-colC(:,:,2)=[[190 190 13]; [231 231 16]; [242 242 72]; [246 246 132]]/255;
-colC(:,:,3)=[[196 45 12]; [242 74 37]; [246 124 97]; [249 171 154]]/255;
-for kk=1:3 %%kk=1 TNF, kk=2 Pam, kk=3 R848
-tab2vio=[];
-
-for i=1:6
-    Model=Mod{i,kk};
-for k=1:4
-    nc=numel(Model{k}.Time);
-    tt=Model{k}.Time{1};
-    nfkb=zeros(nc,numel(tt));
-    for j=1:nc
-    nfkb(j,:)=Model{k}.YY{j}(:,4);
-    end
-
-    auc=trapz(nfkb,2);
-    [auc,idx]=sort(auc,"descend");
-    for ll=1:size(nfkb,1)
-        [mmx(ll),t2max(ll)]=findpeaks(nfkb(ll,:),"NPeaks",1,"SortStr","descend");
-    end
-    tab2vio(:,k,i,1)=mmx;
-    tab2vio(:,k,i,2)=tt(t2max);
-end
-end
-
-figure("Name",nm(kk))
-for k=1:6
-    subplot(2,3,k)
-violin([tab2vio(:,1,k,1) tab2vio(:,2,k,1) tab2vio(:,3,k,1) tab2vio(:,4,k,1)],'mc',[],'medc','black',...
-    'facecolor',colC(:,:,kk))
-ylabel("Amplitude")
-xticks(1:4)
-xticklabels(["1","10","100","1000"])
-ylim([min(tab2vio(:,:,k,1),[],"all") Inf])
-title(tit2(k))
-end
-drawnow
-
-figure("Name",nm(kk))
-for k=1:6
-    subplot(2,3,k)
-violin([tab2vio(:,1,k,2) tab2vio(:,2,k,2) tab2vio(:,3,k,2) tab2vio(:,4,k,2)],'mc',[],'medc','black',...
-    'facecolor',colC(:,:,kk))
-ylabel("Time to Peak")
-xticks(1:4)
-xticklabels(["1","10","100","1000"])
-ylim([min(tab2vio(:,:,k,2),[],"all") Inf])
-title(tit2(k))
-end
-drawnow
-
-end
-%%
-Model={};
-for i=7:9
-    Mod{i}=scHeatM(i-6,i);
-end
-
-%%
 figure
-for i=7:9
-    Model=Mod{i};
-for k=1:4
-    nc=numel(Model{k}.Time);
-    tt=Model{k}.Time{1};
-    nfkb=zeros(nc,numel(tt));
-    for j=1:nc
-    nfkb(j,:)=Model{k}.YY{j}(:,4);
+subplot(2,3,1)
+imagesc(kkd1,kkb1,tabSkbn)
+ylim([.001 1])
+xlim([.5 10])
+title("Parameter space")
+xlabel('n')
+ylabel('k_b')
+set(gca,'ydir','normal','FontSize',12,'YScale','log','YMinorTick','on','XMinorTick','on')
+pbaspect([1 1 1])
+colormap(sky(3))
+drawnow
+
+subplot(2,3,2)
+imagesc(kkd2,kkb2,tabSkbkd)
+ylim([.001 1])
+xlim([.01 1])
+title("Parameter space")
+xlabel('k_c')
+ylabel('k_b')
+set(gca,'ydir','normal','FontSize',12,'XScale','log','YScale','log')
+colormap(sky(3))
+pbaspect([1 1 1])
+drawnow
+
+subplot(2,3,3)
+imagesc(kkd3,kkb3,tabSkcn)
+ylim([.01 1])
+xlim([.5 10])
+title("Parameter space")
+xlabel('n')
+ylabel('k_c')
+set(gca,'ydir','normal','FontSize',12,'YScale','log')
+colormap(sky(3))
+pbaspect([1 1 1])
+drawnow
+
+subplot(2,3,4)
+imagesc(kkd4,kkb4,tabSKn)
+ylim([.01 1])
+xlim([.5 10])
+title("Parameter space")
+ylabel('K')
+xlabel('n')
+set(gca,'ydir','normal','FontSize',12,'YScale','log','XScale','linear')
+colormap(sky(3))
+pbaspect([1 1 1])
+drawnow
+
+subplot(2,3,5)
+imagesc(kkd5,kkb5,tabSKkc)
+ylim([.01 1])
+xlim([.01 1])
+title("Parameter space")
+xlabel('K')
+ylabel('k_c')
+set(gca,'ydir','normal','FontSize',12,'XScale','log','YScale','log')
+colormap(sky(3))
+pbaspect([1 1 1])
+drawnow
+
+subplot(2,3,6)
+imagesc(kkd6,kkb6,tabSKkb)
+ylim([.001 1])
+xlim([.01 1])
+title("Parameter space")
+xlabel('K')
+ylabel('k_b')
+set(gca,'ydir','normal','FontSize',12,'XScale','log','YScale','log')
+colormap(sky(3))
+pbaspect([1 1 1])
+drawnow
+%%
+kd =.03;
+Ki = .01;
+n1 = 2;
+
+figure("Position",[20 60 1200 400])
+var=[.2 .04  0.01 ];
+% hfA=[];
+for i=1:3
+    [s,st,my,Model]=getSpace(var(i),kd,n1,Ki,1,1,0); 
+    subplot(1,3,i)
+    nfkb=[];
+    tt=[];
+    for j=1:4
+        T=Model{j}.Time;
+        YY=Model{j}.YY;
+        % hf=YY(:,1).^n1./(YY(:,1).^n1+Ki.^n1);
+        % hfA(i,j)=trapz(T,hf);
+        % plot3(T,j*ones(length(T),1),hf,"LineWidth",3)
+          plot3(T,j*ones(length(T),1),YY(:,4),"LineWidth",3)
+        zlabel("NFkB dynamics")
+        xlabel("Time (min)")
+        ylabel("Duration Pulse (s)")
+        yticks([1:4])
+        yticklabels(["1" "10" "100" "1000"])
+        % zlim([0 1])
+        xlim([0 70])
+        view(40,10)
+        pbaspect([1,1,1])
+        grid on
+
+        hold on
+        set(gca,'FontSize',12)
+        % drawnow
     end
-
-    auc=trapz(nfkb(:,find(tt>0,1):find(tt>60,1)),2);
-    [auc,idx]=sort(auc,"descend");
-
-    T=timetable(minutes(tt),nfkb');
-    T=synchronize(T,minutes([-10:240]),"spline");
-    subplot(3,4,k+4*(i-7))
-
-    imagesc(minutes(T.Time),1:nc,T.Var1(:,idx)',[0 .6])
-    xlabel("Time (min)")
-    xlim([-10 180])
-    xticks([0:90:180])
-    yticks([])
-    yticklabels([])
-    colormap parula
+    hold off
 end
-end
+    % legend({'1','10','100','1000'})
+
+  %%
+
+ 

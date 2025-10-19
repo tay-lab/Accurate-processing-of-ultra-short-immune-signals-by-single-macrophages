@@ -20,8 +20,6 @@ pp=[3 4];
 plot_Fig2b(data,gname1,tspan,clims,pp,cc,0)
 plot_Fig2b(data,gname1,tspan,clims,pp,cc,1)
 
-%%
-countlabels(data.Category)
 %% Channel capacity
 Nfkb=data.("NfkB");
 tt=data.("Time")(1,:);
