@@ -76,7 +76,6 @@ xlabel("Pulse width (s)")
 set(gca,"FontSize",12)
 
 %% Figure B
-figure
 load AnalysisControl.mat
 groups=unique(data0.Category);
 
@@ -123,4 +122,3 @@ for i=1:5
     title(gnameShort(i))
     set(gca,"FontSize",12)
 end
-
