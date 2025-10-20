@@ -1,8 +1,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% Figure 3 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-load AnalysisTotal.mat
 addpath functions\
+load AnalysisTotal.mat
 %%
 gname1=gname([1,3,5,10,15,20]);
 gnameShort=["Control","CpG","LPS","Pam","R848","TNF"];
@@ -126,8 +126,7 @@ text(xtips1,ytips1,featLabel(idx1(1:end)),'HorizontalAlignment','left',...
 
 %%
 figure("Name","Ligand specificity")
-nlas=[1,2];
-% nlas=[1,3];
+nlas=[1,2,4];
 MIcomb=[];
 k=10;
 Nfkb=[data.("NfkB")];
