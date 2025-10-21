@@ -7,7 +7,7 @@ load AnalysisTotal.mat
 %% Figure 1c
 gname1=gname([3,5,10,15,20]);
 gname2=gname([2,4,9,14,19]);
-gnameShort=["CpG","LPS","Pam","R848","TNF"];
+gnameShort=["CpG","Lipid A","Pam","R848","TNF"];
 Locb=ismember(data0.Category,gname1);
 data=data0(Locb,:);
 Locb=ismember(data0.Category,gname2);

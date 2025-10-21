@@ -6,7 +6,7 @@ close all
 addpath functions\
 load AnalysisTotal.mat
 gname1=gname([3,5,10,15,20]);
-gnameShort=["CpG","LPS","Pam","R848","TNF"];
+gnameShort=["CpG","Lipid A","Pam","R848","TNF"];
 Locb=ismember(data0.Category,gname1);
 data=data0(Locb,:);
 

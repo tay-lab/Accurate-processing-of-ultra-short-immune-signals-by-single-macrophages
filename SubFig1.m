@@ -98,7 +98,7 @@ end
 %% Figure C
 load AnalysisTotal.mat
 gname1=gname([2,4,9,14,19]);
-gnameShort=["CpG","LPS","Pam","R848","TNF"];
+gnameShort=["CpG","Lipid A","Pam","R848","TNF"];
 Locb=ismember(data0.Category,gname1);
 data=data0(Locb,:);
 

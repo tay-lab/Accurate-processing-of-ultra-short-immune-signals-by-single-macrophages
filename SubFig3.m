@@ -5,7 +5,7 @@ load AnalysisTotal.mat
 addpath functions\
 %%
 gname1=gname([1,2,4,9,14,19]);
-gnameShort=["Control","CpG","LPS","Pam","R848","TNF"];
+gnameShort=["Control","CpG","Lipid A","Pam","R848","TNF"];
 Locb=ismember(data0.Category,gname1);
 data=data0(Locb,:);
 %%
